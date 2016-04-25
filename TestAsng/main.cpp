@@ -2,6 +2,8 @@
 
 using namespace std;
 
+const int maxReq;
+
 int mainMenu();
 void checkvalid(bool &flag,int mini, int maxi, int choice);
 
@@ -19,10 +21,22 @@ int main()
         char password[20];
     };
 
+    //structure for customer requests
+    struct Request
+    {
+        int day;
+        int lession;
+        float maxRate;
+    };
     //array to store tutors
     Tutor tutors[10];
 
     //Customer array
+
+    //request array
+
+    //request array num elements
+    int reqElemnts;
 
     //Admin array
 
@@ -102,6 +116,32 @@ int CustomerMenu(int prvSelection){
     return selection;
 }
 
+//request tutor menu
+void requestTutorMenu(int prvSelection, struct Request requests[], int &reqElemnts){
+
+    int day;
+    int lession;
+    float maxRate;
+
+    //add values to request array
+    if(reqElemnts == maxReq){
+        cout << "Cannot make request contact Administrator "
+    }
+    else{
+        cout <<"Enter day of the week (1 for mon ,2 for tues etc) : ";
+        cin  >>day;
+        cout <<"Select lession 1- bla 2 - bla so on :";
+        cin  >>lession;
+        cout <<"Max hourly rate willing to play : ";
+        cin  >>maxRate;
+
+        reqElemnts++;
+        requests[reqElemnts].day = day;
+        requests[reqElemnts].lession = lession;
+        requests[reqElemnts].maxRate = maxRate;
+    }
+
+}
 
 // check validity of inputs if values are in between the given range for menu items
 void checkvalid(bool &flag,int mini, int maxi, int choice){

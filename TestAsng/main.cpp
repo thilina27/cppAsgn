@@ -52,14 +52,6 @@ struct Request
     float maxRate;
 };
 
-//Structure for admins
-struct Admin
-{
-    int id;
-    string name;
-    string password;
-};
-
 int main()
 {
     //array to store tutors
@@ -73,9 +65,6 @@ int main()
 
     //request array num elements
     int reqElemnts = 0;
-
-    //Admin array
-    Admin admins[NUMOFADMINS];
 
     //login type (1 - Admin, 2 - Customer, 3 - Tutor)
     int loginType = 0;
@@ -186,12 +175,15 @@ bool loginMenu(string &username , string &password){
 //loggin function
 bool login(string username, string password, int loginType, struct Tutor tutors[], struct Customer customers[], int loggedID){
 
-    cout<<username<<endl;
-    cout<<password<<endl;
     //log user based on loggin type
     if(loginType == 1){
-
-        //to do admin
+        if(username == "Admin" && password == "admin") {
+            return true;
+        }
+        else {
+            cout <<endl<< "Loggin failed. Try agin! "<<endl;
+            return false;
+        }
     }
     else if(loginType == 2){
         //customers
@@ -248,22 +240,22 @@ void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Custo
 
             if(logintype==1){
                 //admin menu
-                selection = customerMenu();
 
-                if(selection == 1) {
-                    requestTutor(requests[],reqElemnts);
-                }
-                else if(selection == 2) {
-
-
-                }
-                else {
-                    back = true;
-                }
 
             }
             else if(logintype==2){
                 //customer menu
+                selection = customerMenu();
+
+                if(selection == 1) {
+                    requestTutor(requests,reqElemnts);
+                }
+                else if(selection == 2) {
+                    showCustomerBill(customers,loggedID);
+                }
+                else {
+                    back = true;
+                }
             }
             else{
                 //tutor menu
@@ -326,29 +318,48 @@ void requestTutor(struct Request requests[], int &reqElemnts, int loggedID){
 
 }
 
-//calculate bill for customer
+//calculate bill for customer call by admin
 void calculateBills(struct Tutor tutors[], struct Customer customers[], int loggedID){
 
     int tutorID = customers[loggedID-1].tutorID;
     float totalCus = customers[loggedID-1].total;
     float totalTu =  tutors[tutorID].total;
 
-    if(totalCus != -1){
+    int hrs = customers[loggedID-1].hours;
+    float rate = tutors[tutorID].hourlyPayment;
 
-        int hrs = customers[loggedID-1].hours;
-        float rate = tutors[tutorID].hourlyPayment;
+    totalCus += (hrs*rate);
+    totalTu += totalCus;
 
-        totalCus = hrs*rate;
-        totalTu += totalCus;
+    tutors[tutorID].total = totalTu;
+    customers[loggedID-1].total = totalCus;
+
+}
+
+//print bill for customers
+void showCustomerBill(struct Customer customers[], int loggedID){
+
+    float total = customers[loggedID].total;
+
+    if(total != 0){
+        cout << "Total bill "<<total<<endl<<endl;
     }
     else {
-        cout <<"This customer dosent have any assigned tutors ";
+        cout << "No bill for now"<<endl<<endl;
     }
 }
-//print bill for customers
-void showCustomerBill(){
 
+//print bill for tutors
+void showTutorBill(struct Tutor tutors[], int loggedID){
 
+    float total = tutors[loggedID].total;
+
+    if(total != 0){
+        cout << "Total bill "<<total<<endl<<endl;
+    }
+    else {
+        cout << "No bill for now"<<endl<<endl;
+    }
 }
 
 

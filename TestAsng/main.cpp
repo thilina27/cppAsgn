@@ -60,6 +60,10 @@ struct Request
     float maxRate;
 };
 
+//enums
+enum logtype{ ADMIN=1, CUSTOMER, TUTOR, EXIT};
+enum menuItems{ ITEM1=1, ITEM2, ITEM3, ITEM4};
+
 int main()
 {
     //array to store tutors
@@ -93,7 +97,7 @@ int main()
         //get login type
         loginType = mainMenu();
         //if exit
-        if(loginType == 4){
+        if(loginType == EXIT){
             exit = true;
         }
         else{
@@ -114,7 +118,6 @@ int main()
 
             //if not need to go back to main menu and logged in
             if(!back && isLogged){
-                    cout << requests[0].day<<"dadadad"<<endl;
                     navigateUser(loginType,back,tutors,customers,requests,reqElemnts,loggedID);
                     if(back){
                         isLogged = false;
@@ -187,7 +190,7 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
 
     cout <<endl<<endl;
     //log user based on loggin type
-    if(loginType == 1){
+    if(loginType == ADMIN){
         if(username == "Admin" && password == "admin") {
             return true;
         }
@@ -196,7 +199,7 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
             return false;
         }
     }
-    else if(loginType == 2){
+    else if(loginType == CUSTOMER){
         //customers
         for(int i=0; i<NUMOFCUSTOMERS; i++) {
 
@@ -236,7 +239,7 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
             }
 
         }
-        cout << "Loggin failed. Try agin! ";
+        cout << "Loggin failed. Try again! ";
         return false;
 
     }//end tutor type log
@@ -249,18 +252,18 @@ void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Custo
 
     while(!back){
 
-        if(logintype==1){
+        if(logintype == ADMIN){
             //admin menu
             selection = adminMenu();
 
-            if(selection == 1) {
+            if(selection == ITEM1) {
                 assignTutors(requests,reqElemnts,tutors,customers);
 
             }
-            else if(selection == 2) {
+            else if(selection == ITEM2) {
                 //manage tutor
             }
-            else if(selection == 3) {
+            else if(selection == ITEM3) {
                 //mange customers
             }
             else {
@@ -268,14 +271,14 @@ void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Custo
             }
 
         }
-        else if(logintype==2){
+        else if(logintype == CUSTOMER){
             //customer menu
             selection = customerMenu();
 
-            if(selection == 1) {
+            if(selection == ITEM1) {
                 requestTutor(requests,reqElemnts,loggedID);
             }
-            else if(selection == 2) {
+            else if(selection == ITEM2) {
                 showCustomerBill(customers,loggedID);
             }
             else {
@@ -346,9 +349,9 @@ void requestTutor(struct Request requests[], int &reqElemnts, int loggedID){
         cout << "Cannot make request contact Administrator ";
     }
     else{
-        cout <<"Enter day of the week (1 for mon ,2 for tues etc) : ";
+        cout <<"Enter day of the week (1 for Monday ,2 for Tuesday, etc) : ";
         cin  >>day;
-        cout <<"Select lession 1- bla 2 - bla so on :";
+        cout <<"Select lesion (1 - Computer Science, 2 - Mathematics, 3 - Statistics, 4 - Physics) :";
         cin  >>lession;
         cout <<"Max hourly rate willing to play : ";
         cin  >>maxRate;
@@ -389,7 +392,6 @@ void assignTutors(struct Request requests[], int &reqElemnts, struct Tutor tutor
                 hours = requests[i].hours;
 
                 tutorID = findTutor(lession,day,maxRate,tutors);
-                cout<<tutorID<<"idd"<<endl;
                 if(tutorID != -1) {
 
                     // remove assigned day from tutor
@@ -399,6 +401,8 @@ void assignTutors(struct Request requests[], int &reqElemnts, struct Tutor tutor
                     //assign tutor to customer
                     customers[custID].tutorID = tutorID;
                     customers[custID].hours = hours;
+
+                    cout <<"For user "<<customers[custID].name<<", tutor "<<tutors[tutorID].name<<" is assigned. "<<endl;
 
                     //calculate bills
                     calculateBills(tutors,customers,custID);
@@ -441,7 +445,6 @@ int findTutor(int lession, int day, float maxRate, struct Tutor tutors[]) {
         int les =experties & lession;
 
         if( (work > 0) && (hourlyPayment <= maxRate) && (les > 0)) {
-            cout<<id;
             return id;
         }
     }

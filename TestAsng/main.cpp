@@ -3,15 +3,17 @@
 
 using namespace std;
 
-const int maxReq=10;
-const int numOfCustomers=2;
-const int numOfTutors=2;
+const int MAXREQ=10;
+const int NUMOFCUSTOMERS=2;
+const int NUMOFTUTORS=2;
+const int NUMOFADMINS=1;
 
 int mainMenu();
 void checkvalid(bool &flag,int mini, int maxi, int choice);
 void setValue(struct Tutor tutors[], struct Customer customers[]);
 bool loginMenu(string &username , string &password);
-bool login(string username , string password, int loginType, struct Tutor tutors[], struct Customer customers[]);
+bool login(string username , string password, int loginType, struct Tutor tutors[], struct Customer customers[], int &loggedID);
+void navigateUser(int logintype, bool &back)
 
 
 //stuctures
@@ -25,6 +27,7 @@ struct Tutor
     int experties;
     string email;
     string password;
+    float total;
 };
 
 //create structure for customer
@@ -33,43 +36,58 @@ struct Customer
     int id;
     string name;
     string password;
+    int hours;
+    float total;
+    int tutorID;
 };
 
 //structure for customer requests
 struct Request
 {
+    int id;
+    int hours;
     int custID;
     int day;
     int lession;
     float maxRate;
 };
 
+//Structure for admins
+struct Admin
+{
+    int id;
+    string name;
+    string password;
+};
+
 int main()
 {
-
-
     //array to store tutors
-    Tutor tutors[numOfTutors];
+    Tutor tutors[NUMOFTUTORS];
 
     //Customer array
-    Customer customers[numOfCustomers];
+    Customer customers[NUMOFCUSTOMERS];
 
     //request array
-    Request requests[maxReq];
+    Request requests[MAXREQ];
 
     //request array num elements
     int reqElemnts = 0;
 
     //Admin array
+    Admin admins[NUMOFADMINS];
 
     //login type (1 - Admin, 2 - Customer, 3 - Tutor)
     int loginType = 0;
+
+    //logged in user id
+    int loggedID = -1;
 
     //logged in or not
     bool isLogged = false;
 
     //exit
-    bool exit=false;
+    bool exit = false;
 
     setValue(tutors,customers);
 
@@ -77,7 +95,7 @@ int main()
 
         //get login type
         loginType = mainMenu();
-
+        //if exit
         if(loginType == 4){
             exit = true;
         }
@@ -85,22 +103,30 @@ int main()
             //username pasword holder
             string username;
             string password;
-            bool back=false;
+            bool back = false;
 
+            //login for user
             while(!isLogged && !back){
                 //show login menu
-                back=loginMenu(username,password);
+                back = loginMenu(username,password);
                 //loged in user
                 if(!back){
-                    isLogged=login(username,password,loginType,tutors,customers);
+                    isLogged = login(username,password,loginType,tutors,customers);
                 }
+            }//end login
+
+            //if not need to go back to main menu and logged in
+            if(!back && isLogged){
+                    navigateUser(logintype,back);
+                    if(back){
+                        isLogged = false;
+                        loginType = 0;
+                    }
 
             }
 
+
         }
-
-
-
     }
 
     //int a = 4;
@@ -158,7 +184,7 @@ bool loginMenu(string &username , string &password){
 }
 
 //loggin function
-bool login(string username, string password, int loginType, struct Tutor tutors[], struct Customer customers[]){
+bool login(string username, string password, int loginType, struct Tutor tutors[], struct Customer customers[], int loggedID){
 
     cout<<username<<endl;
     cout<<password<<endl;
@@ -169,13 +195,17 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
     }
     else if(loginType == 2){
         //customers
-        for(int i=0; i<numOfCustomers; i++) {
-            string a=customers[i].name;
-            cout<<a<<endl;
+        for(int i=0; i<NUMOFCUSTOMERS; i++) {
+
+                string a=customers[i].name;
+
             if(a==username){
-                string b=customers[i].password;
-                cout<<b<<endl;
+
+                    string b=customers[i].password;
+
                 if(b==password){
+
+                    loggedID = customers[i].id;
                     cout << "Login Success"<<endl;
                     cout << "Rederecting......"<<endl;
                     return true;
@@ -184,13 +214,13 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
             }
 
         }
-        cout << "Loggin failed. Try agin! ";
+        cout <<endl<< "Loggin failed. Try agin! "<<endl;
         return false;
 
     }//end customer type log
     else{
         //customers
-        for(int i=0; i<numOfTutors; i++) {
+        for(int i=0; i<NUMOFTUTORS; i++) {
 
             if(tutors[i].name == username){
 
@@ -209,8 +239,41 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
     }//end tutor type log
 }
 
+//redirect to correct menu based on login type
+void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Customer customers[], struct Request requests[], int &reqElemnts, int loggedID){
+
+    int selection;
+
+    while(!back){
+
+            if(logintype==1){
+                //admin menu
+                selection = customerMenu();
+
+                if(selection == 1) {
+                    requestTutor(requests[],reqElemnts);
+                }
+                else if(selection == 2) {
+
+
+                }
+                else {
+                    back = true;
+                }
+
+            }
+            else if(logintype==2){
+                //customer menu
+            }
+            else{
+                //tutor menu
+            }
+    }
+
+}
+
 //customer menu
-int CustomerMenu(int prvSelection){
+int customerMenu(){
 
     int selection;
     bool valid = false;
@@ -223,25 +286,23 @@ int CustomerMenu(int prvSelection){
         cout <<"Enter choice : ";
         cin  >>selection;
 
-        checkvalid(valid,1, 4, selection);
+        checkvalid(valid,1, 3, selection);
 
-        if(selection == 3){
-            selection = prvSelection;
-        }
     }
 
     return selection;
 }
 
-//request tutor menu
-void requestTutorMenu(int prvSelection, struct Request requests[], int &reqElemnts){
+//request tutor
+void requestTutor(struct Request requests[], int &reqElemnts, int loggedID){
 
     int day;
     int lession;
+    int numberOfHours;
     float maxRate;
 
 
-    if(reqElemnts == maxReq){
+    if(reqElemnts == MAXREQ){
         cout << "Cannot make request contact Administrator ";
     }
     else{
@@ -251,15 +312,45 @@ void requestTutorMenu(int prvSelection, struct Request requests[], int &reqElemn
         cin  >>lession;
         cout <<"Max hourly rate willing to play : ";
         cin  >>maxRate;
+        cout <<"Number of hours : ";
+        cin  >>numberOfHours
 
         //add values to request array
         reqElemnts++;
         requests[reqElemnts].day = day;
         requests[reqElemnts].lession = lession;
         requests[reqElemnts].maxRate = maxRate;
+        requests[reqElemnts].hours = numberOfHours;
+        requests[reqElemnts].id = loggedID;
     }
 
 }
+
+//calculate bill for customer
+void calculateBills(struct Tutor tutors[], struct Customer customers[], int loggedID){
+
+    int tutorID = customers[loggedID-1].tutorID;
+    float totalCus = customers[loggedID-1].total;
+    float totalTu =  tutors[tutorID].total;
+
+    if(totalCus != -1){
+
+        int hrs = customers[loggedID-1].hours;
+        float rate = tutors[tutorID].hourlyPayment;
+
+        totalCus = hrs*rate;
+        totalTu += totalCus;
+    }
+    else {
+        cout <<"This customer dosent have any assigned tutors ";
+    }
+}
+//print bill for customers
+void showCustomerBill(){
+
+
+}
+
 
 // check validity of inputs if values are in between the given range for menu items
 void checkvalid(bool &flag,int mini, int maxi, int choice){

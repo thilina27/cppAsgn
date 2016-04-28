@@ -114,6 +114,7 @@ int main()
 
             //if not need to go back to main menu and logged in
             if(!back && isLogged){
+                    cout << requests[0].day<<"dadadad"<<endl;
                     navigateUser(loginType,back,tutors,customers,requests,reqElemnts,loggedID);
                     if(back){
                         isLogged = false;
@@ -144,7 +145,7 @@ int mainMenu(){
     bool valid = false;
 
     while(!valid){
-
+        cout <<endl<<endl;
         cout << " ABC Company"<<endl;
         cout << "1. Admin"<<endl;
         cout << "2. Customer"<<endl;
@@ -163,6 +164,7 @@ int mainMenu(){
 //login menu
 bool loginMenu(string &username , string &password){
     cin.get();
+    cout <<endl<<endl;
     char c='e';
     cout << " Login "<<endl;
     cout << "User Name  : ";
@@ -183,6 +185,7 @@ bool loginMenu(string &username , string &password){
 //loggin function
 bool login(string username, string password, int loginType, struct Tutor tutors[], struct Customer customers[], int &loggedID){
 
+    cout <<endl<<endl;
     //log user based on loggin type
     if(loginType == 1){
         if(username == "Admin" && password == "admin") {
@@ -293,7 +296,7 @@ int customerMenu(){
     bool valid = false;
 
     while(!valid){
-
+        cout <<endl<<endl;
         cout <<" 1. Request tutor"<<endl;
         cout <<" 2. Show bill"<<endl;
         cout <<" 3. Back"<<endl;
@@ -314,7 +317,7 @@ int adminMenu(){
     bool valid = false;
 
     while(!valid){
-
+        cout <<endl<<endl;
         cout <<" 1. Assign tutor"<<endl;
         cout <<" 2. Manage tutors"<<endl;
         cout <<" 3. Manage Customers"<<endl;
@@ -337,6 +340,7 @@ void requestTutor(struct Request requests[], int &reqElemnts, int loggedID){
     int numberOfHours;
     float maxRate;
 
+    cout <<endl<<endl;
 
     if(reqElemnts == MAXREQ){
         cout << "Cannot make request contact Administrator ";
@@ -352,12 +356,13 @@ void requestTutor(struct Request requests[], int &reqElemnts, int loggedID){
         cin  >>numberOfHours;
 
         //add values to request array
-        reqElemnts++;
         requests[reqElemnts].day = day;
         requests[reqElemnts].lession = lession;
         requests[reqElemnts].maxRate = maxRate;
         requests[reqElemnts].hours = numberOfHours;
-        requests[reqElemnts].id = loggedID;
+        requests[reqElemnts].id = reqElemnts;
+        requests[reqElemnts].custID = loggedID;
+        reqElemnts++;
     }
 
 }
@@ -384,7 +389,7 @@ void assignTutors(struct Request requests[], int &reqElemnts, struct Tutor tutor
                 hours = requests[i].hours;
 
                 tutorID = findTutor(lession,day,maxRate,tutors);
-
+                cout<<tutorID<<"idd"<<endl;
                 if(tutorID != -1) {
 
                     // remove assigned day from tutor
@@ -400,7 +405,7 @@ void assignTutors(struct Request requests[], int &reqElemnts, struct Tutor tutor
                 }
                 else {
                     string name = customers[custID].name;
-
+                    cout <<endl<<endl;
                     cout << "Failed to assign tutor to customer named " <<name<<endl<<endl;
                 }
 
@@ -410,6 +415,7 @@ void assignTutors(struct Request requests[], int &reqElemnts, struct Tutor tutor
 
     }
     else {
+        cout <<endl<<endl;
         cout << "No request to assign "<<endl<<endl;
     }
 
@@ -431,11 +437,15 @@ int findTutor(int lession, int day, float maxRate, struct Tutor tutors[]) {
         hourlyPayment = tutors[i].hourlyPayment;
         experties = tutors[i].experties;
 
-        if(((workingDays & day) > 0) && (hourlyPayment < maxRate) && ((experties & lession) > 0)) {
+        int work = (workingDays & day);
+        int les =experties & lession;
+
+        if( (work > 0) && (hourlyPayment <= maxRate) && (les > 0)) {
+            cout<<id;
             return id;
         }
     }
-
+    cout <<endl<<endl;
     cout << "No sutable tutor found";
     return -1;
 }
@@ -443,24 +453,25 @@ int findTutor(int lession, int day, float maxRate, struct Tutor tutors[]) {
 //calculate bill for customer call by admin
 void calculateBills(struct Tutor tutors[], struct Customer customers[], int loggedID){
 
-    int tutorID = customers[loggedID-1].tutorID;
-    float totalCus = customers[loggedID-1].total;
+    int tutorID = customers[loggedID].tutorID;
+    float totalCus = customers[loggedID].total;
     float totalTu =  tutors[tutorID].total;
 
-    int hrs = customers[loggedID-1].hours;
+    int hrs = customers[loggedID].hours;
     float rate = tutors[tutorID].hourlyPayment;
 
     totalCus += (hrs*rate);
     totalTu += totalCus;
 
     tutors[tutorID].total = totalTu;
-    customers[loggedID-1].total = totalCus;
+    customers[loggedID].total = totalCus;
 
 }
 
 //print bill for customers
 void showCustomerBill(struct Customer customers[], int loggedID){
 
+    cout <<endl<<endl;
     float total = customers[loggedID].total;
 
     if(total != 0){
@@ -474,6 +485,7 @@ void showCustomerBill(struct Customer customers[], int loggedID){
 //print bill for tutors
 void showTutorBill(struct Tutor tutors[], int loggedID){
 
+    cout <<endl<<endl;
     float total = tutors[loggedID].total;
 
     if(total != 0){
@@ -492,6 +504,7 @@ void checkvalid(bool &flag,int mini, int maxi, int choice){
         flag = true;
     }
     else{
+        cout <<endl<<endl;
         flag = false;
         cout <<endl<<"PLZ enter valid input "<<endl<<endl;
     }
@@ -510,6 +523,8 @@ void setValue(struct Tutor tutors[], struct Customer customers[]){
         tutors[i].experties = 7;
         tutors[i].email = "sjnsjs.ccm";
         tutors[i].password = "1234";
+        tutors[i].total = 0.0;
+
         i++;
         tutors[i].id = i;
         tutors[i].name = "Jam";
@@ -518,14 +533,17 @@ void setValue(struct Tutor tutors[], struct Customer customers[]){
         tutors[i].experties = 4;
         tutors[i].email = "sjnsjs.ccm";
         tutors[i].password = "5678";
+        tutors[i].total = 0.0;
 
         i=0;
         customers[i].id=i;
         customers[i].name="trc";
         customers[i].password = "7897";
+        customers[i].total = 0.0;
 
         i++;
         customers[i].id=i;
         customers[i].name="trc2";
         customers[i].password = "7891";
+        customers[i].total = 0.0;
 }

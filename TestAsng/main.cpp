@@ -21,6 +21,7 @@ bool loginMenu(string &username , string &password);
 bool login(string username, string password, int loginType, struct Tutor tutors[], struct Customer customers[], int &loggedID);
 void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Customer customers[], struct Request requests[], int &reqElemnts, int loggedID);
 int customerMenu();
+int tutorMenu();
 int adminMenu();
 void requestTutor(struct Request requests[], int &reqElemnts, int loggedID);
 void assignTutors(struct Request requests[], int &reqElemnts, struct Tutor tutors[], struct Customer customers[]);
@@ -32,6 +33,9 @@ void checkvalid(bool &flag,int mini, int maxi, int choice);
 void setValue(struct Tutor tutors[], struct Customer customers[]);
 void initCustomers(struct Customer customers[]);
 void initTutors(struct Tutor tutors[]);
+void exitSystem(struct Tutor tutors[], struct Customer customers[]);
+void saveCustomers(struct Customer customers[]);
+void saveTutors(struct Tutor tutors[]);
 
 //stuctures
 //create structure for tutors
@@ -139,12 +143,13 @@ int main()
 
         }
     }
+    exitSystem(tutors,customers);
 
     return 0;
 }
 
 //Show main menu to select the login type
-int mainMenu(){
+int mainMenu(){int tutorMenu()
 
     //get and return user selection
     int selection;
@@ -314,6 +319,26 @@ int customerMenu(){
         cin  >>selection;
 
         checkvalid(valid,1, 3, selection);
+
+    }
+
+    return selection;
+}
+
+//tutor menu
+int tutorMenu(){
+
+    int selection;
+    bool valid = false;
+
+    while(!valid){
+        cout <<endl<<endl;
+        cout <<" 1. Show bill"<<endl;
+        cout <<" 2. Back"<<endl;
+        cout <<"Enter choice : ";
+        cin  >>selection;
+
+        checkvalid(valid,1, 2, selection);
 
     }
 
@@ -538,6 +563,7 @@ void initCustomers(struct Customer customers[]){
     float total;
     int tutorID;
 
+    int i =0;
     //open customer file
     string line;
     ifstream myfile ("customers.txt");
@@ -548,22 +574,23 @@ void initCustomers(struct Customer customers[]){
 
             istringstream iss(line);
 
+            iss >> id;
             iss >> name;
             iss >> password;
             iss >> hours;
             iss >> total;
             iss >> tutorID;
 
-            customers[id].id = id;
-            customers[id].name = name;
-            customers[id].password = password;
-            customers[id].hours = hours;
-            customers[id].total = total;
-            customers[id].tutorID = tutorID;
-            id++;
+            customers[i].id = id;
+            customers[i].name = name;
+            customers[i].password = password;
+            customers[i].hours = hours;
+            customers[i].total = total;
+            customers[i].tutorID = tutorID;
+            i++;
 
     }
-    numberOfCustomers=id;
+    numberOfCustomers=i;
     myfile.close();
   }
 
@@ -582,6 +609,7 @@ void initTutors(struct Tutor tutors[]){
     string password;
     float total;
 
+    int i=0;
     //open customer file
     string line;
     ifstream myfile ("tutors.txt");
@@ -592,6 +620,7 @@ void initTutors(struct Tutor tutors[]){
 
             istringstream iss(line);
 
+            iss >> id;
             iss >> name;
             iss >> workingDays;
             iss >> hourlyPayment;
@@ -600,21 +629,109 @@ void initTutors(struct Tutor tutors[]){
             iss >> password;
             iss >> total;
 
-            tutors[id].id = id;
-            tutors[id].name = name;
-            tutors[id].workingDays = workingDays;
-            tutors[id].hourlyPayment = hourlyPayment;
-            tutors[id].experties = experties;
-            tutors[id].email = email;
-            tutors[id].password = password;
-            tutors[id].total = total;
-            id++;
+            tutors[i].id = id;
+            tutors[i].name = name;
+            tutors[i].workingDays = workingDays;
+            tutors[i].hourlyPayment = hourlyPayment;
+            tutors[i].experties = experties;
+            tutors[i].email = email;
+            tutors[i].password = password;
+            tutors[i].total = total;
+            i++;
 
     }
-    numberOfTutors=id;
+    numberOfTutors=i;
     myfile.close();
   }
 
   else cout << "Unable to open tutors file";
 
+}
+
+void exitSystem(struct Tutor tutors[], struct Customer customers[]){
+
+    cout<<endl<<"Exiting System"<<endl;
+    saveCustomers(customers);
+    saveTutors(tutors);
+
+}
+
+void saveCustomers(struct Customer customers[]){
+
+    ofstream myfile;
+    myfile.open ("customers.txt");
+
+    if (myfile.is_open()){
+
+        int id =0;
+        string name;
+        string password;
+        int hours;
+        float total;
+        int tutorID;
+
+        cout << "Writing to customer file.\n";
+
+        for(int i=0; i<numberOfCustomers; i++){
+
+            id = customers[i].id;
+            name = customers[i].name;
+            password = customers[i].password;
+            hours = customers[i].hours;
+            total = customers[i].total;
+            tutorID = customers[i].tutorID;
+
+            myfile<<id<<" "<<name<<" "<<password<<" "<<hours<<" "<<total<<" "<<tutorID<<"\n";
+
+        }
+
+
+        myfile.close();
+
+    }
+    else{
+        cout <<"unable to write customer file"<<endl;
+    }
+}
+
+void saveTutors(struct Tutor tutors[]){
+
+    ofstream myfile;
+    myfile.open ("tutors.txt");
+
+    if (myfile.is_open()){
+
+        int id;
+        string name;
+        int workingDays;
+        float hourlyPayment;
+        int experties;
+        string email;
+        string password;
+        float total;
+
+        cout << "Writing to tutor file.\n";
+
+        for(int i=0; i<numberOfCustomers; i++){
+
+            id = tutors[i].id;
+            name = tutors[i].name;
+            workingDays = tutors[i].workingDays;
+            hourlyPayment = tutors[i].hourlyPayment;
+            experties = tutors[i].experties;
+            email = tutors[i].email;
+            password = tutors[i].password;
+            total = tutors[i].total;
+
+            myfile<<id<<" "<<name<<" "<<workingDays<<" "<<hourlyPayment<<" "<<experties<<" "<<email<<" "<<password<<" "<<total<<"\n";
+
+        }
+
+
+        myfile.close();
+
+    }
+    else{
+        cout <<"unable to write tutors file"<<endl;
+    }
 }

@@ -1,12 +1,20 @@
 #include <iostream>
 #include <string.h>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
-const int MAXREQ=10;
-const int NUMOFCUSTOMERS=2;
-const int NUMOFTUTORS=2;
-const int NUMOFADMINS=1;
+const int MAXREQ = 10;
+const int MAX_NUM_OF_CUSTOMERS = 1000;
+const int MAX_NUM_OF_TUTORS = 500;
+const int NUMOFADMINS = 1;
+
+//current count
+//number of customers currently in
+int numberOfCustomers = 0;
+//number of tutors currently in
+int numberOfTutors = 0;
 
 int mainMenu();
 bool loginMenu(string &username , string &password);
@@ -22,7 +30,8 @@ void showCustomerBill(struct Customer customers[], int loggedID);
 void showTutorBill(struct Tutor tutors[], int loggedID);
 void checkvalid(bool &flag,int mini, int maxi, int choice);
 void setValue(struct Tutor tutors[], struct Customer customers[]);
-
+void initCustomers(struct Customer customers[]);
+void initTutors(struct Tutor tutors[]);
 
 //stuctures
 //create structure for tutors
@@ -67,10 +76,10 @@ enum menuItems{ ITEM1=1, ITEM2, ITEM3, ITEM4};
 int main()
 {
     //array to store tutors
-    Tutor tutors[NUMOFTUTORS];
+    Tutor tutors[MAX_NUM_OF_TUTORS];
 
     //Customer array
-    Customer customers[NUMOFCUSTOMERS];
+    Customer customers[MAX_NUM_OF_CUSTOMERS];
 
     //request array
     Request requests[MAXREQ];
@@ -118,23 +127,18 @@ int main()
 
             //if not need to go back to main menu and logged in
             if(!back && isLogged){
-                    navigateUser(loginType,back,tutors,customers,requests,reqElemnts,loggedID);
-                    if(back){
-                        isLogged = false;
-                        loginType = 0;
-                    }
+
+                navigateUser(loginType,back,tutors,customers,requests,reqElemnts,loggedID);
+
+                if(back){
+                    isLogged = false;
+                    loginType = 0;
+                }
 
             }
 
-
         }
     }
-
-    //int a = 4;
-    //int b = 7;
-    // int c = b & a; this is > 0 if b have values in a
-
-
 
     return 0;
 }
@@ -166,6 +170,7 @@ int mainMenu(){
 
 //login menu
 bool loginMenu(string &username , string &password){
+
     cin.get();
     cout <<endl<<endl;
     char c='e';
@@ -176,6 +181,7 @@ bool loginMenu(string &username , string &password){
     cin  >>password;
     cout <<"enter e to exit or s to submit : ";
     cin  >>c;
+
     if(c == 's'){
         return false;
     }
@@ -192,6 +198,7 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
     //log user based on loggin type
     if(loginType == ADMIN){
         if(username == "Admin" && password == "admin") {
+            cout<<"Login success Admin"<<endl;
             return true;
         }
         else {
@@ -201,7 +208,7 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
     }
     else if(loginType == CUSTOMER){
         //customers
-        for(int i=0; i<NUMOFCUSTOMERS; i++) {
+        for(int i=0; i<numberOfCustomers; i++) {
 
                 string a=customers[i].name;
 
@@ -212,7 +219,7 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
                 if(b==password){
 
                     loggedID = customers[i].id;
-                    cout << "Login Success"<<endl;
+                    cout << "Login Success "<<username<<endl;
                     cout << "Rederecting......"<<endl;
                     return true;
                 }
@@ -226,12 +233,12 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
     }//end customer type log
     else{
         //customers
-        for(int i=0; i<NUMOFTUTORS; i++) {
+        for(int i=0; i<numberOfTutors; i++) {
 
             if(tutors[i].name == username){
 
                 if(tutors[i].password == password){
-                    cout << "Login Success"<<endl;
+                    cout << "Login Success "<<username<<endl;
                     cout << "Rederecting......"<<endl;
                     return true;
                 }
@@ -320,6 +327,7 @@ int adminMenu(){
     bool valid = false;
 
     while(!valid){
+
         cout <<endl<<endl;
         cout <<" 1. Assign tutor"<<endl;
         cout <<" 2. Manage tutors"<<endl;
@@ -434,7 +442,7 @@ int findTutor(int lession, int day, float maxRate, struct Tutor tutors[]) {
     int experties;
 
 
-    for(int i=0; i<NUMOFTUTORS; i++) {
+    for(int i=0; i<numberOfTutors; i++) {
 
         id = tutors[i].id;
         workingDays = tutors[i].workingDays;
@@ -517,36 +525,96 @@ void checkvalid(bool &flag,int mini, int maxi, int choice){
 //set values for arrays
 void setValue(struct Tutor tutors[], struct Customer customers[]){
 
-        int i=0;
+    initTutors(tutors);
+    initCustomers(customers);
+}
 
-        tutors[i].id = i;
-        tutors[i].name = "Sam";
-        tutors[i].workingDays = 7;
-        tutors[i].hourlyPayment = 100.00;
-        tutors[i].experties = 7;
-        tutors[i].email = "sjnsjs.ccm";
-        tutors[i].password = "1234";
-        tutors[i].total = 0.0;
+void initCustomers(struct Customer customers[]){
 
-        i++;
-        tutors[i].id = i;
-        tutors[i].name = "Jam";
-        tutors[i].workingDays = 8;
-        tutors[i].hourlyPayment = 170.00;
-        tutors[i].experties = 4;
-        tutors[i].email = "sjnsjs.ccm";
-        tutors[i].password = "5678";
-        tutors[i].total = 0.0;
+    int id =0;
+    string name;
+    string password;
+    int hours;
+    float total;
+    int tutorID;
 
-        i=0;
-        customers[i].id=i;
-        customers[i].name="trc";
-        customers[i].password = "7897";
-        customers[i].total = 0.0;
+    //open customer file
+    string line;
+    ifstream myfile ("customers.txt");
 
-        i++;
-        customers[i].id=i;
-        customers[i].name="trc2";
-        customers[i].password = "7891";
-        customers[i].total = 0.0;
+    if (myfile.is_open()){
+
+        while (getline(myfile,line)){
+
+            istringstream iss(line);
+
+            iss >> name;
+            iss >> password;
+            iss >> hours;
+            iss >> total;
+            iss >> tutorID;
+
+            customers[id].id = id;
+            customers[id].name = name;
+            customers[id].password = password;
+            customers[id].hours = hours;
+            customers[id].total = total;
+            customers[id].tutorID = tutorID;
+            id++;
+
+    }
+    numberOfCustomers=id;
+    myfile.close();
+  }
+
+  else cout << "Unable to open customers file";
+
+}
+
+void initTutors(struct Tutor tutors[]){
+
+    int id;
+    string name;
+    int workingDays;
+    float hourlyPayment;
+    int experties;
+    string email;
+    string password;
+    float total;
+
+    //open customer file
+    string line;
+    ifstream myfile ("tutors.txt");
+
+    if (myfile.is_open()){
+
+        while (getline(myfile,line)){
+
+            istringstream iss(line);
+
+            iss >> name;
+            iss >> workingDays;
+            iss >> hourlyPayment;
+            iss >> experties;
+            iss >> email;
+            iss >> password;
+            iss >> total;
+
+            tutors[id].id = id;
+            tutors[id].name = name;
+            tutors[id].workingDays = workingDays;
+            tutors[id].hourlyPayment = hourlyPayment;
+            tutors[id].experties = experties;
+            tutors[id].email = email;
+            tutors[id].password = password;
+            tutors[id].total = total;
+            id++;
+
+    }
+    numberOfTutors=id;
+    myfile.close();
+  }
+
+  else cout << "Unable to open tutors file";
+
 }

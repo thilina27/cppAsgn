@@ -149,7 +149,7 @@ int main()
 }
 
 //Show main menu to select the login type
-int mainMenu(){int tutorMenu()
+int mainMenu(){
 
     //get and return user selection
     int selection;
@@ -243,6 +243,7 @@ bool login(string username, string password, int loginType, struct Tutor tutors[
             if(tutors[i].name == username){
 
                 if(tutors[i].password == password){
+                    loggedID = tutors[i].id;
                     cout << "Login Success "<<username<<endl;
                     cout << "Rederecting......"<<endl;
                     return true;
@@ -299,6 +300,16 @@ void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Custo
         }
         else{
             //tutor menu
+            selection = tutorMenu();
+
+            if(selection == ITEM1){
+                //show bill
+                showTutorBill(tutors,loggedID);
+
+            }
+            else{
+                back = true;
+            }
         }
     }
 
@@ -333,7 +344,7 @@ int tutorMenu(){
 
     while(!valid){
         cout <<endl<<endl;
-        cout <<" 1. Show bill"<<endl;
+        cout <<" 1. Show payslip"<<endl;
         cout <<" 2. Back"<<endl;
         cout <<"Enter choice : ";
         cin  >>selection;
@@ -525,10 +536,10 @@ void showTutorBill(struct Tutor tutors[], int loggedID){
     float total = tutors[loggedID].total;
 
     if(total != 0){
-        cout << "Total bill "<<total<<endl<<endl;
+        cout << "Total payslip "<<total<<endl<<endl;
     }
     else {
-        cout << "No bill for now"<<endl<<endl;
+        cout << "No payslip for now"<<endl<<endl;
     }
 }
 

@@ -42,6 +42,11 @@ void editTutor(struct Tutor tutors[]);
 void deleteTutor(struct Tutor tutors[], struct Customer customers[]);
 void upadateCustomers(struct Customer customers[], int tutId);
 int findIndexOfTutor(struct Tutor tutors[], string name);
+void manageCustomerMenu(struct Customer customers[]);
+void addCustomer(struct Customer customers[]);
+void editCustomer(struct Customer customers[]);
+int findIndexOfCustomer(struct Customer customers[], string name);
+void deleteCustomer(struct Customer customers[]);
 
 //stuctures
 //create structure for tutors
@@ -273,13 +278,12 @@ void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Custo
 
             if(selection == ITEM1) {
                 assignTutors(requests,reqElemnts,tutors,customers);
-
             }
             else if(selection == ITEM2) {
                 manageTutorMenu(tutors,customers);
             }
             else if(selection == ITEM3) {
-                //mange customers
+                manageCustomerMenu(customers);
             }
             else {
                 back = true;
@@ -699,6 +703,7 @@ void upadateCustomers(struct Customer customers[], int tutId){
     }
 }
 
+//find index of tutor given name
 int findIndexOfTutor(struct Tutor tutors[], string name){
 
     for(int i=0; i<numberOfTutors; i++){
@@ -733,14 +738,14 @@ void manageCustomerMenu(struct Customer customers[]){
         checkvalid(isValid,1,4,selection);
 
         if(isValid){
-             if(selection == ITEM1){
-
+            if(selection == ITEM1){
+                addCustomer(customers);
             }
             else if(selection == ITEM2){
-
+                editCustomer(customers);
             }
             else if(selection == ITEM3){
-
+                deleteCustomer(customers);
             }
             else{
                 back = true;
@@ -749,6 +754,142 @@ void manageCustomerMenu(struct Customer customers[]){
 
     }
 
+}
+
+//add new customer
+void addCustomer(struct Customer customers[]){
+
+    int id =0;
+    string name;
+    string password;
+    int hours = 0;
+    float total = 0;
+    int tutorID = -1;
+
+    if(numberOfCustomers<MAX_NUM_OF_CUSTOMERS){
+
+        id = customers[numberOfCustomers-1].id + 1;
+        cin.get();
+        cout <<"Enter new customer name :";
+        cin  >>name;
+        cout <<"Enter password for customer "<<name<<": ";
+        cin  >>password;
+
+        customers[numberOfCustomers].id = id;
+        customers[numberOfCustomers].name = name;
+        customers[numberOfCustomers].password = password;
+        customers[numberOfCustomers].hours = hours;
+        customers[numberOfCustomers].total = total;
+        customers[numberOfCustomers].tutorID = tutorID;
+        numberOfCustomers++;
+        cout <<endl<<"New customer added successful"<<endl;
+
+    }
+    else{
+        cout<<endl<<"cant add more customers"<<endl;
+    }
+
+}
+
+//edit customer
+void editCustomer(struct Customer customers[]){
+
+    int index = -1;
+    string name;
+    string password;
+
+    char exit;
+    bool back = false;
+
+    while(!back){
+
+        cin.get();
+        cout <<"Enter customer name you need to edit :";
+        cin  >>name;
+
+        index = findIndexOfCustomer(customers,name);
+
+        if(index!=-1){
+
+            cin.get();
+            cout <<"Current customer name is "<<customers[index].name<<". Enter new name of the customer :";
+            cin  >>name;
+            cout <<"Current customer password is "<<customers[index].password<<". Enter new password of the customer :";
+            cin  >>password;
+
+            customers[index].name = name;
+            customers[index].password = password;
+
+            cout <<"Customer edit successful "<<endl;
+            back = true;
+
+        }
+        else{
+            cout <<"Press e to exit or r to re enter name :";
+            cin  >>exit;
+
+            if(exit != 'r'){
+                back = true;
+            }
+        }
+
+    }
+
+
+}
+
+//delete customer
+void deleteCustomer(struct Customer customers[]){
+
+    string name;
+    int index = -1;
+    bool back = false;
+    char exit;
+
+    while(!back){
+
+        cin.get();
+        cout <<"Enter name of the Customer you need to remove :";
+        cin  >>name;
+
+        index = findIndexOfCustomer(customers,name);
+
+        if(index != -1){
+            //remove customer
+            customers[index].id = -1;
+            saveCustomers(customers);
+            initCustomers(customers);
+            cout <<"customer removed successful "<<endl;
+            back = true;
+
+        }
+        else{
+
+            cout <<"Press e to exit or r to re-enter name :";
+            cin  >>exit;
+
+            if(exit != 'r'){
+                back = true;
+            }
+    }
+
+}
+
+}
+
+//find index of customer given name
+int findIndexOfCustomer(struct Customer customers[], string name){
+
+    int index = -1;
+
+    for(int i=0; i<numberOfCustomers; i++){
+        if(customers[i].name == name){
+            index = i;
+            return index;
+        }
+    }
+
+    return index;
 }
 
 //calculate bill for customer call by admin
@@ -943,13 +1084,16 @@ void saveCustomers(struct Customer customers[]){
         for(int i=0; i<numberOfCustomers; i++){
 
             id = customers[i].id;
-            name = customers[i].name;
-            password = customers[i].password;
-            hours = customers[i].hours;
-            total = customers[i].total;
-            tutorID = customers[i].tutorID;
+            if(id != -1){
+                name = customers[i].name;
+                password = customers[i].password;
+                hours = customers[i].hours;
+                total = customers[i].total;
+                tutorID = customers[i].tutorID;
 
-            myfile<<id<<" "<<name<<" "<<password<<" "<<hours<<" "<<total<<" "<<tutorID<<"\n";
+                myfile<<id<<" "<<name<<" "<<password<<" "<<hours<<" "<<total<<" "<<tutorID<<"\n";
+            }
+
 
         }
 

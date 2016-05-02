@@ -36,16 +36,16 @@ void initTutors(struct Tutor tutors[]);
 void exitSystem(struct Tutor tutors[], struct Customer customers[]);
 void saveCustomers(struct Customer customers[]);
 void saveTutors(struct Tutor tutors[]);
-void manageTutorMenu(struct Tutor tutors[]);
+void manageTutorMenu(struct Tutor tutors[], struct Customer customers[]);
 void addTutor(struct Tutor tutors[]);
 void editTutor(struct Tutor tutors[]);
-void deleteTutor(struct Tutor tutors[]);
+void deleteTutor(struct Tutor tutors[], struct Customer customers[]);
+void upadateCustomers(struct Customer customers[], int tutId);
 int findIndexOfTutor(struct Tutor tutors[], string name);
 
 //stuctures
 //create structure for tutors
-struct Tutor
-{
+struct Tutor{
     int id;
     string name;
     int workingDays;
@@ -57,8 +57,7 @@ struct Tutor
 };
 
 //create structure for customer
-struct Customer
-{
+struct Customer{
     int id;
     string name;
     string password;
@@ -68,8 +67,7 @@ struct Customer
 };
 
 //structure for customer requests
-struct Request
-{
+struct Request{
     int id;
     int hours;
     int custID;
@@ -82,8 +80,7 @@ struct Request
 enum logtype{ ADMIN=1, CUSTOMER, TUTOR, EXIT};
 enum menuItems{ ITEM1=1, ITEM2, ITEM3, ITEM4};
 
-int main()
-{
+int main(){
     //array to store tutors
     Tutor tutors[MAX_NUM_OF_TUTORS];
 
@@ -279,7 +276,7 @@ void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Custo
 
             }
             else if(selection == ITEM2) {
-                manageTutorMenu(tutors);
+                manageTutorMenu(tutors,customers);
             }
             else if(selection == ITEM3) {
                 //mange customers
@@ -503,7 +500,7 @@ int findTutor(int lession, int day, float maxRate, struct Tutor tutors[]) {
 }
 
 //Mange tutor sub menu
-void manageTutorMenu(struct Tutor tutors[]){
+void manageTutorMenu(struct Tutor tutors[],struct Customer customers[]){
 
     bool isValid = false;
     bool back = false;
@@ -529,7 +526,7 @@ void manageTutorMenu(struct Tutor tutors[]){
                 editTutor(tutors);
             }
             else if(selection == ITEM3){
-                deleteTutor(tutors);
+                deleteTutor(tutors,customers);
             }
             else{
                 back = true;
@@ -652,7 +649,7 @@ void editTutor(struct Tutor tutors[]){
 }
 
 //delete tutor
-void deleteTutor(struct Tutor tutors[]){
+void deleteTutor(struct Tutor tutors[], struct Customer customers[]){
 
     string name;
     int index = -1;
@@ -669,7 +666,9 @@ void deleteTutor(struct Tutor tutors[]){
 
         if(index != -1){
             //remove tutor
+            int idt = tutors[index].id;
             tutors[index].id = -1;
+            upadateCustomers(customers,idt);
             saveTutors(tutors);
             initTutors(tutors);
             cout <<"Tutor removed successful "<<endl;
@@ -690,6 +689,16 @@ void deleteTutor(struct Tutor tutors[]){
 
 }
 
+//update customer
+void upadateCustomers(struct Customer customers[], int tutId){
+
+    for(int i=0; i<numberOfCustomers; i++){
+        if(customers[i].tutorID == tutId){
+            customers[i].tutorID = -1;
+        }
+    }
+}
+
 int findIndexOfTutor(struct Tutor tutors[], string name){
 
     for(int i=0; i<numberOfTutors; i++){
@@ -702,6 +711,44 @@ int findIndexOfTutor(struct Tutor tutors[], string name){
 
     cout<<" tutor "<<name<<" not fount"<<endl;
     return -1;
+}
+
+//Mange customers sub menu
+void manageCustomerMenu(struct Customer customers[]){
+
+    bool isValid = false;
+    bool back = false;
+    int selection = 0;
+
+    while(!back){
+        cout <<endl<<endl;
+        cout <<"1. Add customer. "<<endl;
+        cout <<"2. Edit customer. "<<endl;
+        cout <<"3. Delete customer. "<<endl;
+        cout <<"4. Back"<<endl;
+
+        cout<<"Enter choice : ";
+        cin >>selection;
+
+        checkvalid(isValid,1,4,selection);
+
+        if(isValid){
+             if(selection == ITEM1){
+
+            }
+            else if(selection == ITEM2){
+
+            }
+            else if(selection == ITEM3){
+
+            }
+            else{
+                back = true;
+            }
+        }
+
+    }
+
 }
 
 //calculate bill for customer call by admin
@@ -750,7 +797,6 @@ void showTutorBill(struct Tutor tutors[], int loggedID){
     }
 }
 
-
 // check validity of inputs if values are in between the given range for menu items
 void checkvalid(bool &flag,int mini, int maxi, int choice){
 
@@ -772,6 +818,7 @@ void setValue(struct Tutor tutors[], struct Customer customers[]){
     initCustomers(customers);
 }
 
+//initiate customers
 void initCustomers(struct Customer customers[]){
 
     int id =0;
@@ -816,6 +863,7 @@ void initCustomers(struct Customer customers[]){
 
 }
 
+//initiate tutors
 void initTutors(struct Tutor tutors[]){
 
     int id;
@@ -866,6 +914,7 @@ void initTutors(struct Tutor tutors[]){
 
 }
 
+//exit system
 void exitSystem(struct Tutor tutors[], struct Customer customers[]){
 
     cout<<endl<<"Exiting System"<<endl;
@@ -874,6 +923,7 @@ void exitSystem(struct Tutor tutors[], struct Customer customers[]){
 
 }
 
+//save customer file
 void saveCustomers(struct Customer customers[]){
 
     ofstream myfile;
@@ -912,6 +962,7 @@ void saveCustomers(struct Customer customers[]){
     }
 }
 
+//save tutor file
 void saveTutors(struct Tutor tutors[]){
 
     ofstream myfile;

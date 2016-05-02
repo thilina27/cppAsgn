@@ -38,6 +38,9 @@ void saveCustomers(struct Customer customers[]);
 void saveTutors(struct Tutor tutors[]);
 void manageTutorMenu(struct Tutor tutors[]);
 void addTutor(struct Tutor tutors[]);
+void editTutor(struct Tutor tutors[]);
+void deleteTutor(struct Tutor tutors[]);
+int findIndexOfTutor(struct Tutor tutors[], string name);
 
 //stuctures
 //create structure for tutors
@@ -523,10 +526,10 @@ void manageTutorMenu(struct Tutor tutors[]){
                 addTutor(tutors);
             }
             else if(selection == ITEM2){
-                //Edit tutor
+                editTutor(tutors);
             }
             else if(selection == ITEM3){
-                //delete tutor
+                deleteTutor(tutors);
             }
             else{
                 back = true;
@@ -537,6 +540,7 @@ void manageTutorMenu(struct Tutor tutors[]){
 
 }
 
+//add new tutor
 void addTutor(struct Tutor tutors[]){
 
     int id;
@@ -582,6 +586,122 @@ void addTutor(struct Tutor tutors[]){
         cout<<"Can not add more tutors max limit reached"<<endl;
     }
 
+}
+
+//edit tutor
+void editTutor(struct Tutor tutors[]){
+
+    string name;
+    int workingDays;
+    float hourlyPayment;
+    int experties;
+    string email;
+    string password;
+
+    char exit;
+    int index = -1;
+    bool back = false;
+
+    cout <<endl<<endl;
+
+    while(!back){
+
+        cin.get();
+        cout <<"Enter tutor name you need to edit :";
+        cin  >>name;
+
+        index = findIndexOfTutor(tutors,name);
+
+        if(index!=-1){
+
+            cin.get();
+            cout <<"Current tutor name is "<<tutors[index].name<<". Enter new name of the tutor :";
+            cin  >>name;
+            cout <<"Current tutor password is "<<tutors[index].password<<". Enter new password of the tutor :";
+            cin  >>password;
+            cout <<"Current tutor email is "<<tutors[index].hourlyPayment<<". Enter new email of the tutor :";
+            cin  >>email;
+            cout <<"Current tutor working days are "<<tutors[index].workingDays<<". Enter new working days of the tutor :";
+            cin  >>workingDays;
+            cout <<"Current tutor hourly payment is "<<tutors[index].hourlyPayment<<". Enter new hourly payment of the tutor :";
+            cin  >>hourlyPayment;
+            cout <<"Current tutor expertise are "<<tutors[index].hourlyPayment<<". Enter new expertise of the tutor :";
+            cin  >>experties;
+
+            //save tutor to array
+            tutors[index].name = name;
+            tutors[index].workingDays = workingDays;
+            tutors[index].hourlyPayment = hourlyPayment;
+            tutors[index].experties = experties;
+            tutors[index].email = email;
+            tutors[index].password = password;
+
+            cout <<"Tutor edit successful "<<endl;
+            back = true;
+
+        }
+        else{
+            cout <<"Press e to exit or r to re enter name :";
+            cin  >>exit;
+
+            if(exit != 'r'){
+                back = true;
+            }
+        }
+    }
+}
+
+//delete tutor
+void deleteTutor(struct Tutor tutors[]){
+
+    string name;
+    int index = -1;
+    bool back = false;
+    char exit;
+
+    while(!back){
+
+        cin.get();
+        cout <<"Enter name of the tutor you need to remove :";
+        cin  >>name;
+
+        index = findIndexOfTutor(tutors,name);
+
+        if(index != -1){
+            //remove tutor
+            tutors[index].id = -1;
+            saveTutors(tutors);
+            initTutors(tutors);
+            cout <<"Tutor removed successful "<<endl;
+            back = true;
+
+        }
+        else{
+
+            cout <<"Press e to exit or r to re-enter name :";
+            cin  >>exit;
+
+            if(exit != 'r'){
+                back = true;
+            }
+    }
+
+}
+
+}
+
+int findIndexOfTutor(struct Tutor tutors[], string name){
+
+    for(int i=0; i<numberOfTutors; i++){
+
+        if(tutors[i].name == name){
+            return i;
+        }
+
+    }
+
+    cout<<" tutor "<<name<<" not fount"<<endl;
+    return -1;
 }
 
 //calculate bill for customer call by admin
@@ -813,15 +933,20 @@ void saveTutors(struct Tutor tutors[]){
         for(int i=0; i<numberOfTutors; i++){
 
             id = tutors[i].id;
-            name = tutors[i].name;
-            workingDays = tutors[i].workingDays;
-            hourlyPayment = tutors[i].hourlyPayment;
-            experties = tutors[i].experties;
-            email = tutors[i].email;
-            password = tutors[i].password;
-            total = tutors[i].total;
+            //add tutors to file if they not removed
+            if(id != -1){
 
-            myfile<<id<<" "<<name<<" "<<workingDays<<" "<<hourlyPayment<<" "<<experties<<" "<<email<<" "<<password<<" "<<total<<"\n";
+                name = tutors[i].name;
+                workingDays = tutors[i].workingDays;
+                hourlyPayment = tutors[i].hourlyPayment;
+                experties = tutors[i].experties;
+                email = tutors[i].email;
+                password = tutors[i].password;
+                total = tutors[i].total;
+
+                myfile<<id<<" "<<name<<" "<<workingDays<<" "<<hourlyPayment<<" "<<experties<<" "<<email<<" "<<password<<" "<<total<<"\n";
+
+            }
 
         }
 

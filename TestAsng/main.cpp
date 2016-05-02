@@ -36,6 +36,8 @@ void initTutors(struct Tutor tutors[]);
 void exitSystem(struct Tutor tutors[], struct Customer customers[]);
 void saveCustomers(struct Customer customers[]);
 void saveTutors(struct Tutor tutors[]);
+void manageTutorMenu(struct Tutor tutors[]);
+void addTutor(struct Tutor tutors[]);
 
 //stuctures
 //create structure for tutors
@@ -274,7 +276,7 @@ void navigateUser(int logintype, bool &back, struct Tutor tutors[], struct Custo
 
             }
             else if(selection == ITEM2) {
-                //manage tutor
+                manageTutorMenu(tutors);
             }
             else if(selection == ITEM3) {
                 //mange customers
@@ -495,6 +497,91 @@ int findTutor(int lession, int day, float maxRate, struct Tutor tutors[]) {
     cout <<endl<<endl;
     cout << "No sutable tutor found";
     return -1;
+}
+
+//Mange tutor sub menu
+void manageTutorMenu(struct Tutor tutors[]){
+
+    bool isValid = false;
+    bool back = false;
+    int selection = 0;
+
+    while(!back){
+        cout <<endl<<endl;
+        cout <<"1. Add tutor. "<<endl;
+        cout <<"2. Edit tutor. "<<endl;
+        cout <<"3. Delete tutor. "<<endl;
+        cout <<"4. Back"<<endl;
+
+        cout<<"Enter choice : ";
+        cin >>selection;
+
+        checkvalid(isValid,1,4,selection);
+
+        if(isValid){
+             if(selection == ITEM1){
+                addTutor(tutors);
+            }
+            else if(selection == ITEM2){
+                //Edit tutor
+            }
+            else if(selection == ITEM3){
+                //delete tutor
+            }
+            else{
+                back = true;
+            }
+        }
+
+    }
+
+}
+
+void addTutor(struct Tutor tutors[]){
+
+    int id;
+    string name;
+    int workingDays;
+    float hourlyPayment;
+    int experties;
+    string email;
+    string password;
+    float total;
+
+    if(numberOfTutors < MAX_NUM_OF_TUTORS){
+        cout <<endl<<endl;
+        cin.get();
+        id = tutors[numberOfTutors-1].id + 1;
+        cout <<"Enter Tutor name :";
+        cin  >>name;
+        cout <<"Enter password of the tutor "<<name<<" :";
+        cin  >>password;
+        cout <<"Enter email address of the tutor "<<name<<" :";
+        cin  >>email;
+        cout <<"Enter working days of the tutor "<<name<<" (as a single value):";
+        cin  >>workingDays;
+        cout <<"Enter hourly payment for the tutor "<<name<<" :";
+        cin  >>hourlyPayment;
+        cout <<"Enter expertise of the tutor "<<name<<" (as a single value):";
+        cin  >>experties;
+        total = 0;
+
+        //save tutor to array
+        tutors[numberOfTutors].id = id;
+        tutors[numberOfTutors].name = name;
+        tutors[numberOfTutors].workingDays = workingDays;
+        tutors[numberOfTutors].hourlyPayment = hourlyPayment;
+        tutors[numberOfTutors].experties = experties;
+        tutors[numberOfTutors].email = email;
+        tutors[numberOfTutors].password = password;
+        tutors[numberOfTutors].total = total;
+        numberOfTutors++;
+        cout <<endl<<"Adding Tutor "<<name<<" success "<<endl;
+    }
+    else{
+        cout<<"Can not add more tutors max limit reached"<<endl;
+    }
+
 }
 
 //calculate bill for customer call by admin
@@ -723,7 +810,7 @@ void saveTutors(struct Tutor tutors[]){
 
         cout << "Writing to tutor file.\n";
 
-        for(int i=0; i<numberOfCustomers; i++){
+        for(int i=0; i<numberOfTutors; i++){
 
             id = tutors[i].id;
             name = tutors[i].name;
@@ -737,7 +824,6 @@ void saveTutors(struct Tutor tutors[]){
             myfile<<id<<" "<<name<<" "<<workingDays<<" "<<hourlyPayment<<" "<<experties<<" "<<email<<" "<<password<<" "<<total<<"\n";
 
         }
-
 
         myfile.close();
 
